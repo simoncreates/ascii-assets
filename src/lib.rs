@@ -1,4 +1,4 @@
-pub use crossterm::style::Color;
+use crossterm::style::Color;
 
 use std::fs::File;
 use std::io::{self, Read, Write, BufReader, BufWriter};
