@@ -2,6 +2,9 @@
 name = "ascii_assets"
 version = "0.1.0"
 edition = "2024"
+description = "a small library for handling a custom filetype used to store and load Sprite Assets"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 crossterm = "0.27" 
