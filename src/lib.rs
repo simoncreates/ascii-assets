@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{self, Read, Write, BufReader, BufWriter};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct TerminalChar {
     pub chr: char,
     pub fg_color: Option<Color>,
