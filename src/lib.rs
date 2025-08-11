@@ -74,7 +74,7 @@ impl TerminalChar {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct AsciiVideo {
     pub width: u16,
     pub height: u16,
