@@ -145,6 +145,17 @@ impl AsciiVideo {
         let height = r.read_u16::<LittleEndian>()?;
         let frame_count = r.read_u32::<LittleEndian>()? as usize;
 
+        if width == 0 || height == 0 || width > 4096 || height > 4096 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "dimensions out of range, max 4096x4096"));
+        }
+        
+        if frame_count > 100_000 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("too many frames: {} (max {})", frame_count, 100_000),
+            ));
+        }
+        
         // frames
         let mut frames = Vec::with_capacity(frame_count);
         for _ in 0..frame_count {
