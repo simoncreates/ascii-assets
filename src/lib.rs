@@ -105,6 +105,10 @@ impl AsciiVideo {
         })
     }
 
+    pub fn size(&self) -> (usize, usize, usize) {
+        (self.frames.len(), self.height as usize, self.width as usize)
+    }
+
     pub fn write_to_file(&self, path: &str) -> io::Result<()> {
         let f = File::create(path)?;
         let mut w = BufWriter::new(f);
@@ -242,6 +246,23 @@ impl AsciiSprite {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_video_size() {
+        let pixels = vec![
+            TerminalChar {
+                chr: 'x',
+                fg_color: None,
+                bg_color: None
+            };
+            6
+        ];
+        let sprite1 = AsciiSprite::new(2, 3, pixels.clone()).unwrap();
+        let sprite2 = AsciiSprite::new(2, 3, pixels).unwrap();
+
+        let video = AsciiVideo::new(2, 3, vec![sprite1, sprite2]).unwrap();
+        assert_eq!(video.size(), (2, 3, 2));
+    }
 
     #[test]
     fn test_sprite_grid_access() {
