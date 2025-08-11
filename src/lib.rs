@@ -216,11 +216,72 @@ impl AsciiSprite {
             pixels,
         })
     }
+
+    pub fn as_grid(&self) -> Vec<Vec<TerminalChar>> {
+        let mut grid = Vec::with_capacity(self.height as usize);
+        for row in 0..self.height {
+            let mut row_vec = Vec::with_capacity(self.width as usize);
+            for col in 0..self.width {
+                let idx = (row as usize) * (self.width as usize) + (col as usize);
+                row_vec.push(self.pixels[idx]);
+            }
+            grid.push(row_vec);
+        }
+        grid
+    }
+
+    pub fn get_char(&self, x: u16, y: u16) -> Option<TerminalChar> {
+        if x >= self.width || y >= self.height {
+            return None;
+        }
+        let idx = (y as usize) * (self.width as usize) + (x as usize);
+        Some(self.pixels[idx])
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_sprite_grid_access() {
+        let pixels = vec![
+            TerminalChar {
+                chr: 'a',
+                fg_color: None,
+                bg_color: None,
+            },
+            TerminalChar {
+                chr: 'b',
+                fg_color: None,
+                bg_color: None,
+            },
+            TerminalChar {
+                chr: 'c',
+                fg_color: None,
+                bg_color: None,
+            },
+            TerminalChar {
+                chr: 'd',
+                fg_color: None,
+                bg_color: None,
+            },
+        ];
+        let sprite = AsciiSprite::new(2, 2, pixels).unwrap();
+
+        let grid = sprite.as_grid();
+        assert_eq!(grid[0][0].chr, 'a');
+        assert_eq!(grid[0][1].chr, 'b');
+        assert_eq!(grid[1][0].chr, 'c');
+        assert_eq!(grid[1][1].chr, 'd');
+
+        assert_eq!(sprite.get_char(0, 0).unwrap().chr, 'a');
+        assert_eq!(sprite.get_char(1, 0).unwrap().chr, 'b');
+        assert_eq!(sprite.get_char(0, 1).unwrap().chr, 'c');
+        assert_eq!(sprite.get_char(1, 1).unwrap().chr, 'd');
+        assert_eq!(sprite.get_char(2, 0), None);
+        assert_eq!(sprite.get_char(0, 2), None);
+    }
     #[test]
     fn fuzz_terminal_char_roundtrip() {
         use rand::Rng;
