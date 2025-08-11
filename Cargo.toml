@@ -1,10 +1,11 @@
 [package]
 name = "ascii_assets"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2024"
 description = "a small library for handling a custom filetype used to store and load Sprite Assets"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
+repo = "https://github.com/simoncreates/ascii-assets.git"
 
 [dependencies]
 crossterm = "0.29.0" 
