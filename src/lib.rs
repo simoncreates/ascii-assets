@@ -4,18 +4,83 @@ use std::{
 };
 
 pub mod colour;
-pub use colour::Colour;
+pub use colour::Color;
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 /// A single character together with optional foreground / background colours
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct TerminalChar {
     pub chr: char,
-    pub fg_color: Option<Colour>,
-    pub bg_color: Option<Colour>,
+    pub fg_color: Option<Color>,
+    pub bg_color: Option<Color>,
+}
+
+impl From<char> for TerminalChar {
+    fn from(chr: char) -> Self {
+        TerminalChar::from_char(chr)
+    }
+}
+
+impl From<(char, Color)> for TerminalChar {
+    fn from((chr, fg): (char, Color)) -> Self {
+        TerminalChar::with_fg(chr, fg)
+    }
 }
 
 impl TerminalChar {
+    fn default() -> Self {
+        Self {
+            chr: ' ',
+            fg_color: None,
+            bg_color: None,
+        }
+    }
+
+    pub fn from_char<C: Into<char>>(chr: C) -> Self {
+        Self {
+            chr: chr.into(),
+            fg_color: None,
+            bg_color: None,
+        }
+    }
+
+    pub fn set_fg(mut self, fg: Color) -> Self {
+        self.fg_color = Some(fg);
+        self
+    }
+
+    pub fn set_bg(mut self, bg: Color) -> Self {
+        self.bg_color = Some(bg);
+        self
+    }
+
+    /// Create a TerminalChar with foreground color.
+    pub fn with_fg<C: Into<char>>(chr: C, fg: Color) -> Self {
+        Self {
+            chr: chr.into(),
+            fg_color: Some(fg),
+            bg_color: None,
+        }
+    }
+
+    /// Create a TerminalChar with background color.
+    pub fn with_bg<C: Into<char>>(chr: C, bg: Color) -> Self {
+        Self {
+            chr: chr.into(),
+            fg_color: None,
+            bg_color: Some(bg),
+        }
+    }
+
+    /// Create a TerminalChar with both foreground and background colors.
+    pub fn with_colors<C: Into<char>>(chr: C, fg: Color, bg: Color) -> Self {
+        Self {
+            chr: chr.into(),
+            fg_color: Some(fg),
+            bg_color: Some(bg),
+        }
+    }
+
     /// Convert the foreground colour to an ANSI-256 index if possible.
     pub fn fg_to_ansi256(&self) -> Option<u8> {
         self.fg_color.and_then(|c| c.as_ansi256())
@@ -78,7 +143,7 @@ impl TerminalChar {
             let r8 = r.read_u8()?;
             let g8 = r.read_u8()?;
             let b8 = r.read_u8()?;
-            Some(Colour::rgb(r8, g8, b8))
+            Some(Color::rgb(r8, g8, b8))
         } else {
             None
         };
@@ -88,7 +153,7 @@ impl TerminalChar {
             let r8 = r.read_u8()?;
             let g8 = r.read_u8()?;
             let b8 = r.read_u8()?;
-            Some(Colour::rgb(r8, g8, b8))
+            Some(Color::rgb(r8, g8, b8))
         } else {
             None
         };
@@ -98,6 +163,49 @@ impl TerminalChar {
             fg_color,
             bg_color,
         })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct TerminalString(pub Vec<TerminalChar>);
+
+impl FromIterator<TerminalChar> for TerminalString {
+    fn from_iter<I: IntoIterator<Item = TerminalChar>>(iter: I) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
+impl IntoIterator for TerminalString {
+    type Item = TerminalChar;
+    type IntoIter = std::vec::IntoIter<TerminalChar>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a TerminalString {
+    type Item = &'a TerminalChar;
+    type IntoIter = std::slice::Iter<'a, TerminalChar>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut TerminalString {
+    type Item = &'a mut TerminalChar;
+    type IntoIter = std::slice::IterMut<'a, TerminalChar>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter_mut()
+    }
+}
+
+// Convenience: create TerminalString from a &str, all default colors
+impl From<&str> for TerminalString {
+    fn from(s: &str) -> Self {
+        s.chars().map(TerminalChar::from).collect()
     }
 }
 
@@ -369,7 +477,7 @@ mod tests {
             let chr = char::from(u);
 
             let fg_color = if rng.random_bool(0.5) {
-                Some(Colour::rgb(
+                Some(Color::rgb(
                     rng.random_range(0..=255),
                     rng.random_range(0..=255),
                     rng.random_range(0..=255),
@@ -379,7 +487,7 @@ mod tests {
             };
 
             let bg_color = if rng.random_bool(0.5) {
-                Some(Colour::rgb(
+                Some(Color::rgb(
                     rng.random_range(0..=255),
                     rng.random_range(0..=255),
                     rng.random_range(0..=255),
@@ -418,7 +526,7 @@ mod tests {
                     let chr = char::from(u);
 
                     let fg_color = if rng.random_bool(0.5) {
-                        Some(Colour::rgb(
+                        Some(Color::rgb(
                             rng.random_range(0..=255),
                             rng.random_range(0..=255),
                             rng.random_range(0..=255),
@@ -428,7 +536,7 @@ mod tests {
                     };
 
                     let bg_color = if rng.random_bool(0.5) {
-                        Some(Colour::rgb(
+                        Some(Color::rgb(
                             rng.random_range(0..=255),
                             rng.random_range(0..=255),
                             rng.random_range(0..=255),

@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Colour {
+pub struct Color {
     /// True if this colour is a *Reset* command.
     pub reset: bool,
 
@@ -7,7 +7,7 @@ pub struct Colour {
     pub rgb: (u8, u8, u8),
 }
 
-impl Colour {
+impl Color {
     /// Reset to terminal defaults.
     pub const fn reset() -> Self {
         Self {
@@ -81,6 +81,27 @@ impl Colour {
             }
         }
     }
+
+    // Standard ANSI 16 colors
+    pub const Black: Self = Self::rgb(0, 0, 0);
+    pub const Maroon: Self = Self::rgb(128, 0, 0);
+    pub const Green: Self = Self::rgb(0, 128, 0);
+    pub const Olive: Self = Self::rgb(128, 128, 0);
+    pub const Navy: Self = Self::rgb(0, 0, 128);
+    pub const Purple: Self = Self::rgb(128, 0, 128);
+    pub const Teal: Self = Self::rgb(0, 128, 128);
+    pub const Silver: Self = Self::rgb(192, 192, 192);
+
+    pub const Grey: Self = Self::rgb(128, 128, 128);
+    pub const Red: Self = Self::rgb(255, 0, 0);
+    pub const Lime: Self = Self::rgb(0, 255, 0);
+    pub const Yellow: Self = Self::rgb(255, 255, 0);
+    pub const Blue: Self = Self::rgb(0, 0, 255);
+    pub const Fuchsia: Self = Self::rgb(255, 0, 255);
+    pub const Aqua: Self = Self::rgb(0, 255, 255);
+    pub const White: Self = Self::rgb(255, 255, 255);
+
+    pub const Reset: Self = Self::reset();
 
     /// Convert RGB → ANSI-256 (nearest).
     pub fn rgb_to_ansi256(r: u8, g: u8, b: u8) -> u8 {
