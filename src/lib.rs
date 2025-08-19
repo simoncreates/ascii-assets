@@ -274,6 +274,10 @@ impl AsciiSprite {
         }
         grid
     }
+    /// Return the sprites Pixel buffer as a flat vector.
+    pub fn as_flat(&self) -> Vec<TerminalChar> {
+        self.pixels.clone()
+    }
 
     /// Get a character at the given coordinates, or ``None`` if out of bounds
     pub fn get_char(&self, x: u16, y: u16) -> Option<TerminalChar> {
@@ -394,6 +398,11 @@ impl AsciiVideo {
     /// Return a single frame as a two-dimensional grid.
     pub fn get_frame(&self, index: usize) -> Option<Vec<Vec<TerminalChar>>> {
         self.frames.get(index).map(|s| s.as_grid())
+    }
+
+    /// Return a single frame as a flat vector.
+    pub fn get_frame_flat(&self, index: usize) -> Option<Vec<TerminalChar>> {
+        Some(self.frames.get(index)?.as_flat())
     }
 
     /// Convert all frames to grids.    

@@ -1,6 +1,6 @@
 [package]
 name = "ascii_assets"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 description = "a small library for handling a custom filetype used to store and load Sprite Assets"
 readme = "README.md"
